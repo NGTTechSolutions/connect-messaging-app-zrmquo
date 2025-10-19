@@ -1,118 +1,105 @@
 
 import React, { useState } from "react";
-import { Stack } from "expo-router";
 import { 
-  FlatList, 
-  Pressable, 
-  StyleSheet, 
   View, 
   Text, 
+  StyleSheet, 
+  FlatList, 
+  Pressable,
   TextInput,
-  Platform 
+  Platform,
+  Alert
 } from "react-native";
+import { Stack } from "expo-router";
 import { IconSymbol } from "@/components/IconSymbol";
-import { useTheme } from "@react-navigation/native";
 import { colors } from "@/styles/commonStyles";
 
-interface Chat {
+interface Contact {
   id: string;
   name: string;
-  lastMessage: string;
-  timestamp: string;
-  unreadCount: number;
+  phone: string;
+  status: string;
   isOnline: boolean;
   avatar: string;
 }
 
-export default function ChatsScreen() {
-  const theme = useTheme();
+export default function ContactsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Mock chat data
-  const chats: Chat[] = [
+  const contacts: Contact[] = [
     {
       id: "1",
       name: "Sarah Johnson",
-      lastMessage: "Hey! How are you doing?",
-      timestamp: "2m ago",
-      unreadCount: 2,
+      phone: "+1 234 567 8901",
+      status: "Available",
       isOnline: true,
       avatar: "👩‍💼",
     },
     {
       id: "2",
-      name: "Tech Team",
-      lastMessage: "Meeting at 3 PM today",
-      timestamp: "15m ago",
-      unreadCount: 5,
-      isOnline: false,
-      avatar: "👥",
-    },
-    {
-      id: "3",
       name: "Mike Chen",
-      lastMessage: "Thanks for the update!",
-      timestamp: "1h ago",
-      unreadCount: 0,
+      phone: "+1 234 567 8902",
+      status: "At work",
       isOnline: true,
       avatar: "👨‍💻",
     },
     {
-      id: "4",
-      name: "Family Group",
-      lastMessage: "Mom: Don't forget dinner tonight",
-      timestamp: "2h ago",
-      unreadCount: 3,
-      isOnline: false,
-      avatar: "👨‍👩‍👧‍👦",
-    },
-    {
-      id: "5",
+      id: "3",
       name: "Emma Wilson",
-      lastMessage: "See you tomorrow!",
-      timestamp: "Yesterday",
-      unreadCount: 0,
+      phone: "+1 234 567 8903",
+      status: "Busy",
       isOnline: false,
       avatar: "👩‍🎨",
     },
+    {
+      id: "4",
+      name: "David Brown",
+      phone: "+1 234 567 8904",
+      status: "Hey there! I'm using Connect",
+      isOnline: true,
+      avatar: "👨‍🔬",
+    },
+    {
+      id: "5",
+      name: "Lisa Anderson",
+      phone: "+1 234 567 8905",
+      status: "On vacation 🏖️",
+      isOnline: false,
+      avatar: "👩‍⚕️",
+    },
   ];
 
-  const filteredChats = chats.filter(chat =>
-    chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    contact.phone.includes(searchQuery)
   );
 
-  const renderChatItem = ({ item }: { item: Chat }) => (
+  const renderContactItem = ({ item }: { item: Contact }) => (
     <Pressable
       style={({ pressed }) => [
-        styles.chatItem,
-        pressed && styles.chatItemPressed,
+        styles.contactItem,
+        pressed && styles.contactItemPressed,
       ]}
-      onPress={() => console.log("Open chat:", item.name)}
+      onPress={() => console.log("Open contact:", item.name)}
     >
       <View style={styles.avatarContainer}>
         <Text style={styles.avatar}>{item.avatar}</Text>
         {item.isOnline && <View style={styles.onlineIndicator} />}
       </View>
       
-      <View style={styles.chatContent}>
-        <View style={styles.chatHeader}>
-          <Text style={styles.chatName} numberOfLines={1}>
-            {item.name}
-          </Text>
-          <Text style={styles.timestamp}>{item.timestamp}</Text>
-        </View>
-        
-        <View style={styles.chatFooter}>
-          <Text style={styles.lastMessage} numberOfLines={1}>
-            {item.lastMessage}
-          </Text>
-          {item.unreadCount > 0 && (
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadCount}>{item.unreadCount}</Text>
-            </View>
-          )}
-        </View>
+      <View style={styles.contactContent}>
+        <Text style={styles.contactName}>{item.name}</Text>
+        <Text style={styles.contactStatus} numberOfLines={1}>
+          {item.status}
+        </Text>
       </View>
+
+      <Pressable
+        style={styles.messageButton}
+        onPress={() => console.log("Message:", item.name)}
+      >
+        <IconSymbol name="message.fill" size={20} color={colors.primary} />
+      </Pressable>
     </Pressable>
   );
 
@@ -122,7 +109,7 @@ export default function ChatsScreen() {
         <IconSymbol name="magnifyingglass" size={18} color={colors.textSecondary} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search chats..."
+          placeholder="Search contacts..."
           placeholderTextColor={colors.textSecondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -138,10 +125,10 @@ export default function ChatsScreen() {
 
   const renderHeaderRight = () => (
     <Pressable
-      onPress={() => console.log("New chat")}
+      onPress={() => Alert.alert("Add Contact", "This feature will be available soon")}
       style={styles.headerButton}
     >
-      <IconSymbol name="square.and.pencil" color={colors.primary} size={24} />
+      <IconSymbol name="person.badge.plus" color={colors.primary} size={24} />
     </Pressable>
   );
 
@@ -150,7 +137,7 @@ export default function ChatsScreen() {
       {Platform.OS === 'ios' && (
         <Stack.Screen
           options={{
-            title: "Connect",
+            title: "Contacts",
             headerLargeTitle: true,
             headerRight: renderHeaderRight,
           }}
@@ -158,8 +145,8 @@ export default function ChatsScreen() {
       )}
       <View style={styles.container}>
         <FlatList
-          data={filteredChats}
-          renderItem={renderChatItem}
+          data={filteredContacts}
+          renderItem={renderContactItem}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={renderHeader}
           contentContainerStyle={[
@@ -169,10 +156,10 @@ export default function ChatsScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyIcon}>💬</Text>
-              <Text style={styles.emptyTitle}>No chats found</Text>
+              <Text style={styles.emptyIcon}>👥</Text>
+              <Text style={styles.emptyTitle}>No contacts found</Text>
               <Text style={styles.emptyText}>
-                Start a new conversation by tapping the compose button
+                Add contacts to start messaging
               </Text>
             </View>
           }
@@ -215,8 +202,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     padding: 0,
   },
-  chatItem: {
+  contactItem: {
     flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     backgroundColor: colors.card,
     marginHorizontal: 16,
@@ -225,7 +213,7 @@ const styles = StyleSheet.create({
     boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.05)',
     elevation: 1,
   },
-  chatItemPressed: {
+  contactItemPressed: {
     opacity: 0.7,
     backgroundColor: colors.highlight,
   },
@@ -251,51 +239,22 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.card,
   },
-  chatContent: {
+  contactContent: {
     flex: 1,
-    justifyContent: 'center',
   },
-  chatHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  chatName: {
+  contactName: {
     fontSize: 17,
     fontWeight: '600',
     color: colors.text,
-    flex: 1,
+    marginBottom: 4,
   },
-  timestamp: {
-    fontSize: 13,
+  contactStatus: {
+    fontSize: 14,
     color: colors.textSecondary,
+  },
+  messageButton: {
+    padding: 8,
     marginLeft: 8,
-  },
-  chatFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  lastMessage: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  unreadBadge: {
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    paddingHorizontal: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  unreadCount: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
   },
   headerButton: {
     padding: 8,
